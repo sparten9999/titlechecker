@@ -5,9 +5,7 @@
  */
 (function() {
     var subWelcomeToggle = $.getSetIniDbBoolean('subscribeHandler', 'subscriberWelcomeToggle', true),
-        primeSubWelcomeToggle = $.getSetIniDbBoolean('subscribeHandler', 'primeSubscriberWelcomeToggle', true),
-        reSubWelcomeToggle = $.getSetIniDbBoolean('subscribeHandler', 'reSubscriberWelcomeToggle', true),
-        giftSubWelcomeToggle = $.getSetIniDbBoolean('subscribeHandler', 'giftSubWelcomeToggle', true),
+
         announce = false,
         srGame = '';
     srGameId = '';
@@ -66,9 +64,6 @@
     });
 
     function getGameId(gameName) {
-        // half life 2 survivor + a hat in time error out
-    //   gameName = 'super mario world';
-     // gameName = 'IRL';
         $.consoleLn(gameName);
 
        
@@ -181,14 +176,11 @@
         incrementNum = 0;
         
 
-     //   streamTitle = '11 exit lunar dragon';///////////////
 
         for (i = 0; i <= (numOfCategories - 1); i++) {
-            // $.consoleLn(i);
             cat = categoryNames[i];
             cat = cat.toUpperCase();
 
-            // $.consoleLn(cat);
             streamTitle = streamTitle.toUpperCase();
 
             titleSearch = streamTitle.search(cat)
@@ -224,7 +216,7 @@
         
         if (catsFound == 0){        
            matchedCat = -2; 
-           $.consoleLn('no cats in title');
+           sayFunction('no cats in title');
            return;
         }
         if (catsFound == 1){  
@@ -243,7 +235,7 @@
         }          
         $.consoleLn(string1);
         }
-        $.consoleLn('matchedCat ' + matchedCat + ' @ spot 2');
+        sayFunction('matchedCat ' + matchedCat + ' @ spot 2');
 
     }
 
@@ -271,7 +263,7 @@
         if (command.equalsIgnoreCase('searchgame')) {
             $.consoleLn('searchgame command called');
             if (action === undefined) {
-                $.say('Please type game name');
+                sayFunction('Please type game name');
                             $.consoleLn('1');
 
             } else if (argsString.toLowerCase() == 'auto') {
@@ -357,20 +349,19 @@
         if (command.equalsIgnoreCase('wr')) {
             $.consoleLn('!wr command called');
             $.consoleLn('matchedCat = ' + matchedCat);
-          //  matchCat()
            if (matchedCat != '') {
                 if (matchedCat >= 0 ){
                         sayFunction(runners[matchedCat] + ' holds the ' + categoryNames[matchedCat] + ' world record with a time of ' + times[matchedCat])
                 }                  
                 if (matchedCat == -2) {
-                    $.consoleLn('tell chat no cats found')
+                    sayFunction('tell chat no cats found')
                 }                
                 if (matchedCat == -1) {
-                    $.consoleLn('tell chat  which at you want?')       
+                    sayFunction('tell chat  which at you want?')       
                 } 
                
            } else { 
-           $.consoleLn('no loaded games/records');
+           sayFunction('no loaded games/records');
            }
         }
         
@@ -456,16 +447,13 @@
             
         
         } else  { 
-           $.consoleLn('no loaded games/records');
+           sayFunction('no loaded games/records');
            }
                 }
         
         
         
-         if (command.equalsIgnoreCase('wrgame')) {
-
-             
-         }
+      
         
         
         
@@ -487,10 +475,36 @@
         $.registerChatCommand('./handlers/titlechecker.js', 'searchgame', 7);
         $.registerChatCommand('./handlers/titlechecker.js', 'wr', 7);
         $.registerChatCommand('./handlers/titlechecker.js', 'cat', 7);
-        $.registerChatCommand('./handlers/titlechecker.js', 'wrgame', 7);
 
 
         //$.consoleDebug(message)
 
     });
 })();
+
+//notes / to do list
+// autonauts  game does TypeError: Cannot read property "run" from undefined
+// need to save wrGameMode to DB 
+// in manual mode save game  to db and pull from it on load
+// in all modes save cat to db and pull at startup
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
