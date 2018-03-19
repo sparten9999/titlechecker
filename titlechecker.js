@@ -116,47 +116,79 @@
 
     function getRecords() {
     //example url  https://www.speedrun.com/api/v1/games/pd0wq31e/records?top=1
-        allRecordsUrl = 'https://www.speedrun.com/api/v1/games/' + srGameId + '/records?top=1'
+        allRecordsUrl = 'https://www.speedrun.com/api/v1/games/' + srGameId + '/records?top=1&max=200'
         $.consoleLn(allRecordsUrl);
         var allRecords = $.customAPI.get(allRecordsUrl).content;
         allRecords = JSON.parse(allRecords);
         numOfCategories = allRecords.pagination.size;
         $.consoleLn((numOfCategories.toFixed(0)) + ' Categories found');
 
-        //numOfCategories = 4;
-        for (i = 0; i <= (numOfCategories - 1); i++) {
-            $.consoleLn(i);
+        
+        catsToSearch = numOfCategories;
+        for (i = 0, x = 0; i <= (catsToSearch - 1); i++,x++) {
+            
+            $.consoleLn(numOfCategories + ' numOfCategories');
+            $.consoleLn(i + ' i');
+            
+            $.consoleLn(x + ' x');
+         
+ 
+            
+      
+            
+            //checks if run is an IL
+           if (allRecords.data[i].level != null) {
+               x--
+               numOfCategories--
+               $.consoleLn('IL found - skip');
+               continue;
+           }
+            
+            
+            
+           // checks if run is empty
+            if (String(allRecords.data[i].runs) == '') {
+                x--
+                numOfCategories--
+                $.consoleLn('run empty - skip');
+                continue;
+            }
+            
+            
+            
+            
+            
+            categoriesId[x] = allRecords.data[i].category
+            $.consoleLn(categoriesId[x] + ' cat id');
 
-            categoriesId[i] = allRecords.data[i].category
-            $.consoleLn(categoriesId[i]);
+            runnerId[x] = allRecords.data[i].runs[0].run.players[0].id
+            $.consoleLn(runnerId[x] + ' runnerid');
 
-            runnerId[i] = allRecords.data[i].runs[0].run.players[0].id
-            $.consoleLn(runnerId[i]);
+            times[x] = allRecords.data[i].runs[0].run.times.primary;
+            $.consoleLn(times[x] + ' times');
 
-            times[i] = allRecords.data[i].runs[0].run.times.primary;
-            $.consoleLn(times[i]);
-
-            timesFixed = times[i].replace('PT', '');
+            timesFixed = times[x].replace('PT', '');
             timesFixed = timesFixed.replace('H', ':');
             timesFixed = timesFixed.replace("M", ':');
             timesFixed = timesFixed.replace('S', '');
-            times[i] = timesFixed
+            times[x] = timesFixed
 
             
+            
             //get cat name using catid
-            categoriesUrl = 'https://www.speedrun.com/api/v1/categories/' + categoriesId[i];
+            categoriesUrl = 'https://www.speedrun.com/api/v1/categories/' + categoriesId[x];
             $.consoleLn(categoriesUrl);
             var categories = $.customAPI.get(categoriesUrl).content;
             categories = JSON.parse(categories);
-            categoryNames[i] = categories.data.name;
+            categoryNames[x] = categories.data.name;
             //example url https://www.speedrun.com/api/v1/categories/n2y1y72o
             
             //get runner name using runnerid
-            usersUrl = 'https://www.speedrun.com/api/v1/users/' + runnerId[i];
+            usersUrl = 'https://www.speedrun.com/api/v1/users/' + runnerId[x];
             $.consoleLn(usersUrl);
             var users = $.customAPI.get(usersUrl).content;
             users = JSON.parse(users);
-            runners[i] = users.data.names.international;
+            runners[x] = users.data.names.international;
             //example url https://www.speedrun.com/api/v1/users/18v6n5xl		
 
         }
@@ -178,13 +210,15 @@
 
 
         for (i = 0; i <= (numOfCategories - 1); i++) {
+            
+             
             cat = categoryNames[i];
-            cat = cat.toUpperCase();
-
+            cat = cat.toUpperCase();           
             streamTitle = streamTitle.toUpperCase();
-
             titleSearch = streamTitle.search(cat)
 
+
+            
             if (titleSearch >= 0) {
                 $.consoleLn(cat + ' Found at ' + titleSearch);
                 catsFound++;
@@ -483,13 +517,13 @@
 })();
 
 //notes / to do list
-// autonauts  game does TypeError: Cannot read property "run" from undefined
+// autonauts  game does TypeError: Cannot read property "run" from undefined ----fixed with if (String(allRecords.data[i].runs) == '')
 // need to save wrGameMode to DB 
 // in manual mode save game  to db and pull from it on load
 // in all modes save cat to db and pull at startup
-//
-//
-//
+// do somethign with subcats and rule
+// check if runner id is in array already to avoid calling api again
+// add cat rules command
 //
 //
 //
