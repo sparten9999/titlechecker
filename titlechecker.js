@@ -4,9 +4,10 @@
  * 
  */
 (function() {
-    var subWelcomeToggle = $.getSetIniDbBoolean('subscribeHandler', 'subscriberWelcomeToggle', true),
+    var subWelcomeToggle = $.getSetIniDbBoolean('subscribeHandler', 'subscriberWelcomeToggle', true);
+    var timerArray = [];
 
-        announce = false,
+        announce = false;
         srGame = '';
     srGameId = '';
     oldGameName = '';
@@ -20,7 +21,8 @@
     var catsFound = 0;
     var matchedCat = '';
     var numOfCategories = 0;
-    var wrGameMode = 0;  //  0/true = auto   1/false= manual
+   
+   var wrGameMode = 0;  //  0/true = auto   1/false= manual
     
     
     var badGames = ['IRL', 'SOCIAL EATING', 'CREATIVE', 'RETRO', 'MUSIC', 'TALK SHOWS', 'BOARD GAMES'];
@@ -88,14 +90,16 @@
             runners = [];
             times = [];
             testArray = [];
-            
+    
+    
+     
             gameSearchUrl = 'https://www.speedrun.com/api/v1/games?name=' + gameName;
             $.consoleLn(gameSearchUrl);
             var srAPI = $.customAPI.get(gameSearchUrl).content;
             srAPIJSON = JSON.parse(srAPI);
             
              if ( srAPIJSON.pagination.size == 0) {
-             $.consoleLn(srAPIJSON.pagination.size + ' results found');
+            sayFunction(srAPIJSON.pagination.size + ' results found');
 
             } else {
          
@@ -112,10 +116,14 @@
         }
 
         //example url  https://www.speedrun.com/api/v1/games?name=super%20mario%20world
+        //https://www.speedrun.com/api/v1/games?name=Super%20Mario%20World%202%20Yoshi%27s%20Island
     }
 
     function getRecords() {
-    //example url  https://www.speedrun.com/api/v1/games/pd0wq31e/records?top=1
+    //example url  https://www.speedrun.com/api/v1/games/pd0wq31e/records?top=1&max=200 smw 
+    //example url  https://www.speedrun.com/api/v1/games/o6gnxo12/records?top=1&max=200 Super Mario World 2: Yoshi's Island
+   // https://www.speedrun.com/api/v1/games/o6gnxo12/records?top=1?embed=categories&offset=109 ^ last 3
+ 
         allRecordsUrl = 'https://www.speedrun.com/api/v1/games/' + srGameId + '/records?top=1&max=200'
         $.consoleLn(allRecordsUrl);
         var allRecords = $.customAPI.get(allRecordsUrl).content;
@@ -128,23 +136,16 @@
         for (i = 0, x = 0; i <= (catsToSearch - 1); i++,x++) {
             
             $.consoleLn(numOfCategories + ' numOfCategories');
-            $.consoleLn(i + ' i');
-            
+            $.consoleLn(i + ' i');          
             $.consoleLn(x + ' x');
-         
- 
-            
-      
-            
+     
             //checks if run is an IL
            if (allRecords.data[i].level != null) {
                x--
                numOfCategories--
                $.consoleLn('IL found - skip');
                continue;
-           }
-            
-            
+           }          
             
            // checks if run is empty
             if (String(allRecords.data[i].runs) == '') {
@@ -153,10 +154,7 @@
                 $.consoleLn('run empty - skip');
                 continue;
             }
-            
-            
-            
-            
+           
             
             categoriesId[x] = allRecords.data[i].category
             $.consoleLn(categoriesId[x] + ' cat id');
@@ -327,16 +325,32 @@
         
         
         
-        
         if (command.equalsIgnoreCase('tctest')) {
             $.consoleLn('tctest command called');
-            if (action === undefined) {
+            
+                //test function time
                 
-                getStreamInfo()
-            } else {
-                name = action.toLowerCase();
-                sayFunction(name)
-            }
+           for (q = 1; q <= 15; q++) {               
+           var start = new Date();
+           getStreamInfo()
+           var end = new Date();                    
+           var duration = end - start;           
+           $.consoleLn(duration);             
+            timerArray.push(duration);
+            
+            
+            $.consoleLn(typeof duration);   
+
+           function getSum(total, num) {
+                return total + num;
+           }  
+           $.consoleLn('run ' + q);
+           $.consoleLn((timerArray.reduce(getSum) / timerArray.length) / 1000 + ' s');   
+           
+          
+             }
+                
+             
         }
 
 
