@@ -7,14 +7,13 @@
     var subWelcomeToggle = $.getSetIniDbBoolean('subscribeHandler', 'subscriberWelcomeToggle', true);
     var timerArray = [];
 
-    announce = false;
-    srGame = '';
-    srGameId = '';
-    oldGameName = '';
-    wordsToSay = '';
+    var announce = false;
+    var srGame = '';
+    var srGameId = '';
+    var oldGameName = '';
+    var wordsToSay = '';
     var categoriesId = [];
     var categoryNames = [];
-    var runnerId = [];
     var runners = [];
     var runId = [];
     var times = [];
@@ -22,7 +21,9 @@
     var catsFound = 0;
     var matchedCat = '';
     var numOfCategories = 0;
-    var wrGameMode = 0; //  0/true = auto   1/false= manual
+    var wrGameMode = $.getSetIniDbNumber('SpeedRunCom', 'wrGameMode' , 0);
+    
+    //  0/true = auto   1/false= manual
 
     var badGames = ['IRL', 'SOCIAL EATING', 'CREATIVE', 'RETRO', 'MUSIC', 'TALK SHOWS', 'BOARD GAMES'];
 
@@ -79,7 +80,6 @@
             } else {
                 categoriesId = [];
                 categoryNames = [];
-                runnerId = [];
                 runners = [];
                 times = [];
                 testArray = [];
@@ -146,44 +146,52 @@
             }
 
             categoriesId[x] = allRecords.data[i].category
-            $.consoleLn(categoriesId[x] + ' cat id');
+            $.consoleLn(categoriesId[x] + ' - cat id');
 
-            //          runnerId[x] = allRecords.data[i].runs[0].run.players[0].id
-            //        $.consoleLn(runnerId[x] + ' runnerid');   
-            ////// not needed anymore
+
 
             runId[x] = allRecords.data[i].runs[0].run.id
-            $.consoleLn(runId[x] + ' runId');
+            $.consoleLn(runId[x] + ' - runId');
 
             times[x] = allRecords.data[i].runs[0].run.times.primary;
-            $.consoleLn(times[x] + ' times');
+            $.consoleLn(times[x] + ' - times');
 
             timesFixed = times[x].replace('PT', '');
             timesFixed = timesFixed.replace('H', ':');
             timesFixed = timesFixed.replace("M", ':');
             timesFixed = timesFixed.replace('S', '');
             times[x] = timesFixed
+            $.consoleLn(times[x] + ' - times correct');
 
-            testUrl = 'https://www.speedrun.com/api/v1/runs/' + runId[x] + '?embed=category,players';
-            $.consoleLn(testUrl);
-            var categories = $.customAPI.get(testUrl).content;
-            categories = JSON.parse(categories);
+            runUrl = 'https://www.speedrun.com/api/v1/runs/' + runId[x] + '?embed=category,players';
+            $.consoleLn(runUrl);
+            var runs = $.customAPI.get(runUrl).content;
+            runs = JSON.parse(runs);
 
-            $.consoleLn(' hello 1 ');
 
-            categoryNames[x] = categories.data.category.data.name;
-            $.consoleLn(' hello 2 ');
+            categoryNames[x] = runs.data.category.data.name;
+            $.consoleLn(categoryNames[x] + ' - cat name');
 
-            runners[x] = categories.data.players.data[0].names.international;
+            
+            
+            if (String(runs.data.players.data[0].name) != '') {
+            $.consoleLn('empty');
+            runners[x] = runs.data.players.data[0].name;
+            
+            } else { 
+            
+            $.consoleLn('not empty');
+            runners[x] = runs.data.players.data[0].names.international;
+            }
+            
+            $.consoleLn(runners[x] + ' - Runner name');
 
-            $.consoleLn(' hello 3 ');
 
             //example url https://www.speedrun.com/api/v1/categories/n2y1y72o
 
         }
 
-        $.consoleLn(categoriesId.join(' , '));
-        $.consoleLn(runnerId.join(' , '));
+        $.consoleLn(categoriesId.join(' , '));      
         $.consoleLn(categoryNames.join(' , '));
         $.consoleLn(runners.join(' , '));
         $.consoleLn(times.join(' , '));
@@ -275,6 +283,7 @@
                 $.consoleLn('else if');
 
                 wrGameMode = 0;
+                $.setIniDbNumber('SpeedRunCom', 'wrGameMode' , wrGameMode)
                 $.consoleLn(wrGameMode);
                 //  $.setIniDbBoolean('subscribeHandler', 'wrGameMode', wrGameMode); /////////////add to db
                 getStreamInfo()
@@ -282,8 +291,8 @@
                 $.consoleLn('else');
 
                 wrGameMode = 1;
+                $.setIniDbNumber('SpeedRunCom', 'wrGameMode' , wrGameMode)
 
-                //  $.setIniDbBoolean('subscribeHandler', 'wrGameMode', wrGameMode); /////////////add to db
                 sayFunction($.whisperPrefix(sender) + (wrGameMode ? 'mode 0 true.' : 'mode 1 false.'));
 
                 gameName = argsString.toLowerCase();
@@ -321,22 +330,11 @@
         if (command.equalsIgnoreCase('tctest2')) {
             $.consoleLn('tctest2 command called');
             if (action === undefined) {
+                $.consoleLn(wrGameMode);
 
-                gameSearchUrl = 'https://www.speedrun.com/api/v1/games/pd0wq31e/records?top=1';
-
-                $.consoleLn(gameSearchUrl);
-                var srAPI = $.customAPI.get(gameSearchUrl).content;
-                srAPIJSON1 = JSON.parse(srAPI);
-
-                if (srAPIJSON1.pagination.size == 0) {
-                    $.consoleLn(srAPIJSON1.pagination.size + ' results found');
-
-                } else {
-                    srGame = srAPIJSON1.data[0].weblink;
-
-                    $.consoleLn(srGame);
-
-                }
+            
+        
+                
 
             }
         }
@@ -427,14 +425,12 @@
                 $.consoleLn(numOfCategories + ' numOfCategories');
 
                 string1 = 'Type "!cat X" for your pick '
-                $.consoleLn(string1);
                 for (i = 0; i < numOfCategories; i++) {
                     string1 = string1.concat(i + ': ');
-
                     string1 = string1.concat(categoryNames[i] + ' ');
                 }
-                $.consoleLn(string1);
-
+                sayFunction(string1);
+all
             } else {
                 sayFunction('no loaded games/records');
             }
@@ -462,21 +458,18 @@
 
 //notes / to do list
 // autonauts  game does TypeError: Cannot read property "run" from undefined ----fixed with if (String(allRecords.data[i].runs) == '')
-// need to save wrGameMode to DB 
+// need to save wrGameMode to DB ---- done
+ 
 // in manual mode save game  to db and pull from it on load
 // in all modes save cat to db and pull at startup
 // do somethign with subcats and rule
 // check if runner id is in array already to avoid calling api again
 // add cat rules command
+// 
 //
 //
-//
-//
-//
-//
-//
-//
-//
+// searchgame super mario 64 TypeError: Cannot read property "international" from undefined --unclean fix. for 0 exit akira doesnt have international name
+
 //
 //
 //
