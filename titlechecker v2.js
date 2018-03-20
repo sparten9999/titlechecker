@@ -172,19 +172,19 @@
             categoryNames[x] = runs.data.category.data.name;
             $.consoleLn(categoryNames[x] + ' - cat name');
 
-            
-            
-            if (String(runs.data.players.data[0].name) != '') {
-            $.consoleLn('empty');
-            runners[x] = runs.data.players.data[0].name;
-            
-            } else { 
-            
-            $.consoleLn('not empty');
-            runners[x] = runs.data.players.data[0].names.international;
+         
+    
+            if (String(runs.data.players.data[0].name) == 'undefined') {
+                runners[x] = runs.data.players.data[0].names.international;
+                //normal names
+            } else {                        
+                 runners[x] = runs.data.players.data[0].name;
+            //jp names
             }
-            
-            $.consoleLn(runners[x] + ' - Runner name');
+
+
+
+
 
 
             //example url https://www.speedrun.com/api/v1/categories/n2y1y72o
