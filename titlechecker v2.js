@@ -430,7 +430,7 @@
                     string1 = string1.concat(categoryNames[i] + ' ');
                 }
                 sayFunction(string1);
-all
+
             } else {
                 sayFunction('no loaded games/records');
             }
